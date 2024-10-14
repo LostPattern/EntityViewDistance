@@ -11,8 +11,6 @@
     "ServerChunkLoadingManagerMixin"
   ],
   "client": [
-    "client.sodium.SodiumOptionGroupAccessor",
-    "client.sodium.SodiumGameOptionPagesMixin",
     "client.VideoOptionsScreenMixin"
   ],
   "injectors": {

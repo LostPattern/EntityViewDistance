@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import eu.pb4.entityviewdistance.EVDMod;
 import eu.pb4.entityviewdistance.config.data.ConfigData;
 import eu.pb4.entityviewdistance.config.data.VersionConfigData;
-import net.fabricmc.loader.api.FabricLoader;
+import net.neoforged.fml.loading.FMLPaths;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
@@ -25,7 +25,7 @@ public class ConfigManager {
         CONFIG = null;
         try {
             ConfigData config;
-            File configFile = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity-view-distance.json");
+            File configFile = new File(FMLPaths.CONFIGDIR.get().toFile(), "entity-view-distance.json");
 
 
             if (configFile.exists()) {
@@ -58,7 +58,7 @@ public class ConfigManager {
     }
 
     public static void overrideConfig(ConfigData configData) {
-        File configFile = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity-view-distance.json");
+        File configFile = new File(FMLPaths.CONFIGDIR.get().toFile(), "entity-view-distance.json");
         try {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8));
             writer.write(GSON.toJson(configData));

@@ -1,49 +1,41 @@
 package eu.pb4.entityviewdistance;
 
 import eu.pb4.entityviewdistance.config.ConfigManager;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.api.DedicatedServerModInitializer;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
-import net.fabricmc.loader.api.FabricLoader;
+import eu.pb4.entityviewdistance.screen.EvdSettingsScreen;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.registry.Registries;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.registries.IdMappingEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class EVDMod implements ModInitializer, DedicatedServerModInitializer, ClientModInitializer {
+@Mod("entityviewdistance")
+@EventBusSubscriber
+public class EVDMod {
     public static final Logger LOGGER = LogManager.getLogger("Entity View Distance");
     public static final String ID = "entity-view-distance";
 
-    public static String VERSION = FabricLoader.getInstance().getModContainer(ID).get().getMetadata().getVersion().getFriendlyString();
+    public static String VERSION;
 
-    @Override
-    public void onInitialize() {
+    public EVDMod(ModContainer container) {
+        VERSION = container.getModInfo().getVersion().toString();
         ConfigManager.loadConfig();
-        EvdCommands.register();
+        container.registerExtensionPoint(IConfigScreenFactory.class, (a, b) -> new EvdSettingsScreen(b, MinecraftClient.getInstance().options));
+    }
 
-        for (var entry : Registries.ENTITY_TYPE) {
-            EvdUtils.initialize(entry, Registries.ENTITY_TYPE.getId(entry));
+
+
+    @SubscribeEvent
+    public static void setup(IdMappingEvent event) {
+        for (var type : Registries.ENTITY_TYPE) {
+            EvdUtils.initialize(type, Registries.ENTITY_TYPE.getId(type));
         }
 
-        RegistryEntryAddedCallback.event(Registries.ENTITY_TYPE).register(((rawId, id, entry) -> {
-            EvdUtils.initialize(entry, id);
-        }));
+        ConfigManager.overrideConfig();
     }
 
-    @Override
-    public void onInitializeClient() {
-        ClientLifecycleEvents.CLIENT_STARTED.register((client) -> {
-            ConfigManager.overrideConfig();
-        });
-    }
-
-    @Override
-    public void onInitializeServer() {
-        ServerLifecycleEvents.SERVER_STARTED.register((client) -> {
-            CardboardWarning.checkAndAnnounce();
-            ConfigManager.overrideConfig();
-        });
-    }
 }

@@ -2,10 +2,7 @@ package eu.pb4.entityviewdistance;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.entityviewdistance.config.ConfigManager;
-import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.registry.Registries;
@@ -15,6 +12,9 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import java.util.Locale;
 import java.util.function.Function;
@@ -23,26 +23,27 @@ import java.util.function.Predicate;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
+@EventBusSubscriber
 public class EvdCommands {
     public static final Predicate<ServerCommandSource> IS_HOST = source -> {
         var player = source.getPlayer();
         return player != null && source.getServer().isHost(player.getGameProfile());
     };
 
-    public static void register() {
-        CommandRegistrationCallback.EVENT.register((dispatcher, access, environment) -> {
+    @SubscribeEvent
+    public static void register(RegisterCommandsEvent event) {
+        var dispatcher = event.getDispatcher();
             dispatcher.register(
                     literal("entityviewdistance")
-                            .requires(Permissions.require("entityviewdistance.main", true))
                             .executes(EvdCommands::about)
 
                             .then(literal("reload")
-                                    .requires(Permissions.require("entityviewdistance.reload", 3).or(IS_HOST))
+                                    .requires(IS_HOST.or(x -> x.hasPermissionLevel(3)))
                                     .executes(EvdCommands::reloadConfig)
                             )
 
                             .then(literal("values")
-                                    .requires(Permissions.require("entityviewdistance.set", 3).or(IS_HOST))
+                                    .requires(IS_HOST.or(x -> x.hasPermissionLevel(3)))
                                     .then(argument("entity", IdentifierArgumentType.identifier())
                                             .suggests((ctx, builder) -> {
                                                 var remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
@@ -60,7 +61,6 @@ public class EvdCommands {
                                     )
                             )
             );
-        });
     }
 
     private static int getEntity(CommandContext<ServerCommandSource> context) {

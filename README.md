@@ -1,3 +1,8 @@
+# UNOFFICIAL NEOFORGE PORT
+This is unofficial neoforge port of Styled Chat mod by Patbox.
+Do not report any issues to Patbox, their discord or github.
+
+You can find official/fabric version here https://www.curseforge.com/minecraft/mc-mods/entity-view-distance
 ![Logo](https://i.imgur.com/9PXWMXQ.png)
 
 # Entity View Distance
@@ -6,9 +11,3 @@ It works on client and server, while not being required on either (aka vanilla c
 Ideal if you want to limit rendering distance of item frames, armor stands, and any other (including modded) entities.
 
 You can modify options in `Entity Distance Settings` in `Video Settings` or through `/entityviewdistance` command.
-
-*This mod works only on Fabric Mod Loader with Fabric API or compatible!*
-
-If you have any questions, you can ask them on my [Discord](https://pb4.eu/discord)
-
-[Also check out my other mods and project, as you might find them useful!](https://pb4.eu)
